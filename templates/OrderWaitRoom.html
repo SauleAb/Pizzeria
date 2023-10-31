@@ -3,11 +3,24 @@
         <title>Greetings</title>
     </head>
     <body>
-        <h1>Your order: {{ OrderNumber }}</h1>
-        
+        <h1>Your order: {{ tnum }}</h1>
+
+        <ul>
+            {% for pizza in basket %}
+                <li>{{ pizza['Amount'] }}x {{ pizza['Size'] }} {{ pizza['Pizza'] }} ${{ pizza['Price'] }}</li>
+                {% if 'Comments' in pizza %}
+                <h4>*Comments: {{ pizza['Comments'] }}</h4>
+                {% endif %}
+            {% endfor %}
+        </ul>
+
+        <h3>Total: ${{ Total }}</h3>
+        <a href="/"><button>Back To Main page</button></a>
+
+<!--         
         <p>Pizza: {{ PizzaType }}</p>
         <p>Size: {{ Size }}</p>
-        <p>AdditionalComments: {{ AdditionalComments }}</p>
+        <p>AdditionalComments: {{ AdditionalComments }}</p> -->
 
     </body>
 </html>

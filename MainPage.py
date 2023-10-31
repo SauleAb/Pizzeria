@@ -1,25 +1,134 @@
-from flask import Flask, render_template, request, redirect,jsonify
+from flask import Flask, render_template, request, session, redirect,jsonify
 import tkinter 
 from tkinter import messagebox
 import random
 import time
 from datetime import datetime
+import math
+import copy
 
 app = Flask(__name__)
 
 
-pizzas = ["Margherita", "Pepperoni", "Hawaiian", "BBQ Chicken", "Meat Lovers", "Veggie", "Four Cheese (Quattro Formaggi)", "White Pizza", "Buffalo Chicken", "Supreme", "Sicilian", "Neapolitan", "Spinach and Feta", "Pesto", "Barbecue Bacon"]
+pizzas = ["Margherita", "Pepperoni", "Hawaiian", "BBQ Chicken", "Meat Lovers", "Four Cheese (Quattro Formaggi)", "White Pizza","Sicilian", "Neapolitan", "Pesto", "Barbecue Bacon"]
 sizes = ["Small (6 slices)", "Medium (8 slices)", "Large (12 pieces)", "Jumbo (16 pieces)"]
 Staff = [{'username': 'mario@gmail.com', 'password': '123456789', 'person':'Mario'},{'username': 'luigi@gmail.com', 'password': '987654321', 'person':'Luigi'}]
 orders = []
+basket = []
+# basket.clear()
+
+
+pizza_details = {
+    "Margherita": {
+        "Size": {
+            "Small (6 slices)": "$5.00",
+            "Medium (8 slices)": "$7.00",
+            "Large (12 pieces)": "$10.50",
+            "Jumbo (16 pieces)": "$15.00",
+        },
+        "Ingredients": "Fresh Tomatoes, Fresh Mozzarella, Fresh Basil",
+    },
+    "Pepperoni": {
+        "Size": {
+            "Small (6 slices)": "$6.50",
+            "Medium (8 slices)": "$8.50",
+            "Large (12 pieces)": "$12.00",
+            "Jumbo (16 pieces)": "$16.50",
+        },
+        "Ingredients": "Pepperoni, Cheese, Tomato Sauce",
+    },
+    "Hawaiian": {
+        "Size": {
+            "Small (6 slices)": "$7.50",
+            "Medium (8 slices)": "$9.50",
+            "Large (12 pieces)": "$13.00",
+            "Jumbo (16 pieces)": "$18.00",
+        },
+        "Ingredients": "Ham, Pineapple, Cheese, Tomato Sauce",
+    },
+    "BBQ Chicken": {
+        "Size": {
+            "Small (6 slices)": "$8.00",
+            "Medium (8 slices)": "$10.00",
+            "Large (12 pieces)": "$14.00",
+            "Jumbo (16 pieces)": "$20.00",
+        },
+        "Ingredients": "BBQ Chicken, Onions, Cheese, BBQ Sauce",
+    },
+    "Meat Lovers": {
+        "Size": {
+            "Small (6 slices)": "$9.00",
+            "Medium (8 slices)": "$11.00",
+            "Large (12 pieces)": "$16.00",
+            "Jumbo (16 pieces)": "$22.00",
+        },
+        "Ingredients": "Pepperoni, Sausage, Bacon, Cheese, Tomato Sauce",
+    },
+    "Four Cheese (Quattro Formaggi)": {
+        "Size": {
+            "Small (6 slices)": "$7.50",
+            "Medium (8 slices)": "$9.50",
+            "Large (12 pieces)": "$13.00",
+            "Jumbo (16 pieces)": "$18.00",
+        },
+        "Ingredients": "Mozzarella, Gorgonzola, Parmesan, Ricotta",
+    },
+    "White Pizza": {
+        "Size": {
+            "Small (6 slices)": "$7.50",
+            "Medium (8 slices)": "$9.50",
+            "Large (12 pieces)": "$13.00",
+            "Jumbo (16 pieces)": "$18.00",
+        },
+        "Ingredients": "Olive Oil, Garlic, Ricotta, Mozzarella, Spinach",
+    },
+    "Sicilian": {
+        "Size": {
+            "Small (6 slices)": "$8.50",
+            "Medium (8 slices)": "$10.50",
+            "Large (12 pieces)": "$15.00",
+            "Jumbo (16 pieces)": "$21.00",
+        },
+        "Ingredients": "Thick Crust, Tomato Sauce, Mozzarella, Parmesan",
+    },
+    "Neapolitan": {
+        "Size": {
+            "Small (6 slices)": "$7.00",
+            "Medium (8 slices)": "$9.00",
+            "Large (12 pieces)": "$12.50",
+            "Jumbo (16 pieces)": "$17.50",
+        },
+        "Ingredients": "Thin Crust, Tomato Sauce, Mozzarella, Basil",
+    },
+    "Pesto": {
+        "Size": {
+            "Small (6 slices)": "$8.00",
+            "Medium (8 slices)": "$10.00",
+            "Large (12 pieces)": "$14.00",
+            "Jumbo (16 pieces)": "$20.00",
+        },
+        "Ingredients": "Pesto Sauce, Mozzarella, Tomatoes, Garlic",
+    },
+    "Barbecue Bacon": {
+        "Size": {
+            "Small (6 slices)": "$8.50",
+            "Medium (8 slices)": "$10.50",
+            "Large (12 pieces)": "$15.00",
+            "Jumbo (16 pieces)": "$21.00",
+        },
+        "Ingredients": "Barbecue Sauce, Bacon, Onion, Mozzarella",
+    },
+}
 
 @app.route('/')
 def index():
+    basket.clear()
     return render_template('MainPage.html')
 
 @app.route('/TakeAway.html')
 def TakeAway():
-    return render_template('TakeAway.html', pizzas = pizzas, sizes = sizes)
+    Total = sum(pizza['Price'] for pizza in basket)
+    return render_template('TakeAway.html', pizza_details = pizza_details, pizzas = pizzas, sizes = sizes, basket = basket, Total = Total)
 
 @app.route('/InHouse.html')
 def InHouse():
@@ -31,40 +140,187 @@ def LogIn():
 
 @app.route('/StaffPage.html')
 def StaffPage():
-    return render_template('StaffPage.html')
+    Total = sum(pizza['Price'] for pizza in orders)
+    pizza_totals = calculate_pizza_totals(orders)
+    start_index = (orders[pizza['TableNumber']:] for pizza in orders)
+    # for pizza in orders:
+    #     for pizza2 in orders:
+    #         if pizza['TableNumber'] == pizza2['TableNumber']:
 
 
-@app.route('/TakeAway.html', methods = ['POST'])
-def WaitRoom():
-    PizzaType = request.form['SelectedPizza']
-    Size = request.form['PizzaSize']
-    AdditionalComments = request.form['AdditionalComments']
-    OrderNumber = random.randint(20,10000)
-    timestamp = time.time()
-    orders.append({'PizzaType': PizzaType, 'Size': Size, 'AdditionalComments': AdditionalComments, 'OrderNumber': OrderNumber, 'timestamp': timestamp})
-    return render_template('OrderWaitRoom.html', PizzaType = PizzaType, Size = Size, AdditionalComments = AdditionalComments, OrderNumber = OrderNumber)
 
-@app.route('/InHouse.html', methods = ['POST'])
-def WaitRoomInHouse():
-    error = None
-    PizzaType = request.form['SelectedPizza']
-    Size = request.form['PizzaSize']
-    AdditionalComments = request.form['AdditionalComments']
-    TableNumber = request.form['TableNumber']
 
-    try:
-        TableNumber = int(TableNumber)
-        if 1 <= TableNumber <= 20:
-            timestamp = time.time()
-            orders.append({'PizzaType': PizzaType, 'Size': Size, 'AdditionalComments': AdditionalComments, 'TableNumber': TableNumber, 'timestamp': timestamp})
-            return render_template('OrderWaitRoomInHouse.html', PizzaType=PizzaType, Size=Size, AdditionalComments=AdditionalComments, TableNumber=TableNumber)
+
+    return render_template('StaffPage.html',pizza_totals = pizza_totals, start_index = start_index, orders = orders, basket = basket, Total = Total)
+
+
+
+def calculate_pizza_totals(orders):
+    pizza_totals = {}
+    for order in orders:
+        pizza_name = order['Pizza']
+        total_price = order['Amount'] * order['Price']
+        if pizza_name in pizza_totals:
+            pizza_totals[pizza_name] += total_price
         else:
-            error = "Table number must be between 10 and 20."
-    except ValueError:
-        error = "Table number must be a valid number."
+            pizza_totals[pizza_name] = total_price
+    return pizza_totals
 
-    return render_template('InHouse.html', pizzas=pizzas, sizes=sizes, error=error)
 
+@app.route('/AwayVsHouse.html',methods = ['GET', 'POST'])
+def Location():
+    global basket,orders
+    error = None
+    Total = 0
+    Total = sum(pizza['Price'] for pizza in basket)
+
+
+    if request.method == "POST":
+        action3 = request.form.get('Confirm')
+        action4 = request.form.get('ToMenu')
+        if action3 == 'ToWaitRoom':
+            location = request.form.get('SelectLocation')
+            if location:
+                if location == 'Restaurant':
+                    TableNumber = request.form.get('TableNumber')
+                    if TableNumber:
+                        tnum = int(TableNumber)
+                        if tnum > 20 or tnum < 1:
+                            error = "No such table"
+                        else:
+                            for pizza in basket:
+                                order = {
+                                    'TableNumber': tnum,
+                                    'Pizza': pizza['Pizza'],
+                                    'Size': pizza['Size'],
+                                    'Amount': pizza['Amount'],
+                                    'Price': pizza['Price'],
+                                    # 'TotalPrice': None
+                                }
+                                if 'Comments' in pizza:
+                                    order['Comments'] = pizza['Comments']
+
+
+                            Total = sum(pizza['Price'] for pizza in basket)
+                            order['TotalPrice'] = (f'{Total}')
+
+                                
+                            orders.append(order)
+
+
+                            return render_template('OrderWaitRoom.html', tnum = tnum, basket = basket, Total = Total)
+                    else: 
+                        error = "Please select a Table Number"
+
+                elif location == 'TakeAway':
+                    tnum = random.randint(20,1000)
+
+                    for pizza in basket:
+                        order = {
+                            'TableNumber': tnum,
+                            'Pizza': pizza['Pizza'],
+                            'Size': pizza['Size'],
+                            'Amount': pizza['Amount'],
+                            'Price': pizza['Price'],
+                            # 'TotalPrice': None
+                        }
+
+                        if 'Comments' in pizza:
+                            order['Comments'] = pizza['Comments']
+                        # orders.append(order)
+
+
+
+
+
+
+                        Total = sum(pizza['Price'] for pizza in basket)
+                        order['TotalPrice'] = (f'{Total}')
+                        orders.append(order)
+
+
+
+
+
+                    return render_template('OrderWaitRoom.html', tnum = tnum, basket = basket, Total = Total)
+                
+            else:
+                error = "Please select a location"
+
+
+        elif action4 == 'BackToMenu':
+
+            Total = sum(pizza['Price'] for pizza in orders)
+            order['TotalPrice'] = Total
+
+            return render_template('TakeAway.html', basket = basket, Total = Total)
+
+    return render_template('/AwayVsHouse.html', basket = basket, Total = Total, error = error)
+
+@app.route('/OrderWaitRoom.html')
+def WaitRoom():
+    return render_template('OrderWaitRoom.html',basket = basket)
+
+
+@app.route('/Margherita.html/<pizza_name>', methods = ['GET', 'POST'])
+def Margherita(pizza_name):
+    global basket
+    Total = 0
+    error = None
+    pizza_info = pizza_details.get(pizza_name)
+
+    if request.method == 'POST':
+        action = request.form.get('action')
+        action2 = request.form.get('ToMenu')
+
+        if action == 'add':
+            size = request.form.get('SelectedSize')
+            if size:
+                amount = request.form['Amount']
+                if amount:
+                    try:
+                        amount = int(amount)
+                    except ValueError:
+                        error_message = "Please select a valid amount."
+                        return render_template('Margherita.html', pizza_details=pizza_details, basket=basket, error=error_message,pizza_name=pizza_name)
+                else:
+                    amount = 1
+
+                PricePerOne = pizza_details.get(pizza_name, {}).get("Size", {}).get(size, None)
+                PricePerOne_float = float(PricePerOne.replace("$",""))
+                price = PricePerOne_float * amount
+
+                comments = request.form.get('AdditionalComments', '')
+                if comments:
+                    selected_pizza = {
+                        'Pizza': pizza_name,
+                        'Size': size,
+                        'Amount': amount,
+                        'Comments': comments,
+                        'Price': price,
+                    }
+                    basket.append(selected_pizza)
+                    print(basket)
+
+                else:
+                    selected_pizza = {
+                        'Pizza': pizza_name,
+                        'Size': size,
+                        'Amount': amount,
+                        'Price': price,
+                    }
+                    basket.append(selected_pizza)
+                    print(basket)
+
+            else:
+                error = "Please select a size"
+            
+        elif action2 == 'BackToMenu':
+            Total = sum(pizza['Price'] for pizza in basket)
+            return render_template('TakeAway.html', basket=basket, Total=Total)
+        
+    Total = sum(pizza['Price'] for pizza in basket)
+    return render_template('Margherita.html',pizza_info = pizza_info, pizza_details=pizza_details, basket=basket, error=error,pizza_name=pizza_name, Total=Total)
 
 @app.route('/LogIn.html', methods = ['POST'])
 def ToStaffPage():
@@ -72,7 +328,7 @@ def ToStaffPage():
     Username = request.form['username']
     Password = request.form['password']
     authenticated = False
-    
+
     for i in Staff:
         for i in Staff:
             if Username == i.get('username') and Password == i.get('password'):
@@ -80,11 +336,14 @@ def ToStaffPage():
                 Person = i.get('person')
                 break
 
-    if not authenticated:
+    if not authenticated: 
         error = "Incorrect data"
 
     if authenticated:
-        return render_template('StaffPage.html', Person = Person)
+        pizza_totals = calculate_pizza_totals(orders)
+        Total = sum(pizza['Price'] for pizza in orders)
+        start_index = (orders[pizza['TableNumber']:] for pizza in orders)
+        return render_template('StaffPage.html',pizza_totals = pizza_totals, start_index = start_index, Person = Person, basket = basket, orders = orders, Total = Total)
     else:
         return render_template('LogIn.html', error=error)
  
@@ -94,6 +353,10 @@ if __name__ == '__main__':
 
 
 
-# add a price to each pizza and size (with a dictionary)
+
+
+
+
+
 
 

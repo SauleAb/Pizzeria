@@ -1,9 +1,71 @@
-<html>
+<!-- <html>
     <head>
-        <title>Greetings</title>
+        <title>StaffPage</title>
     </head>
     <body>
         <h1>Hello, {{ Person }}!</h1>
+        <ul>
+            {% for pizza in orders %}
+                <h3>{{ pizza['TableNumber'] }}</h3>
+                <li>{{ pizza['Amount'] }}x {{ pizza['Size'] }} {{ pizza['Pizza'] }}</li>
+                {% if 'Comments' in pizza %}
+                <h4>*Comments: {{ pizza['Comments'] }}</h4>
+                {% endif %}
+                <h5> Price: ${{ pizza['Price'] }}</h5>
+                <h5> Price: ${{ pizza['TotalPrice'] }}</h5>
 
+            {% endfor %}
+            <h3>-------------------------------------</h3>
+            <h3>Total: ${{ Total }}</h3>
+
+        </ul>
     </body>
 </html>
+
+ -->
+
+
+ <html>
+    <head>
+        <title>StaffPage</title>
+    </head>
+    <body>
+        <h1>Hello, {{ Person }}!</h1>
+        <ul>
+            {% for pizza in orders %}
+                <h3>{{ pizza['TableNumber'] }}</h3>
+                {% for pizza2 in orders %}
+                    {% if pizza['TableNumber'] == pizza2['TableNumber'] %}
+                        <!-- <h3>{{ pizza['TableNumber'] }}</h3> -->
+                        <li>{{ pizza['Amount'] }}x {{ pizza['Size'] }} {{ pizza['Pizza'] }}</li>
+                        {% if 'Comments' in pizza %}
+                        <h4>*Comments: {{ pizza['Comments'] }}</h4>
+                        {% endif %}
+                        <h5> Price: ${{ pizza['Price'] }}</h5>
+                        <!-- Calculate the total price for the current order -->
+                        <!-- {% set total_price = pizza['Amount'] * pizza['Price'] %} -->
+                        <!-- <h5> Total Price: ${{ pizza['TotalPrice'] }}</h5> -->
+                        <!-- <h3>-------------------------------------</h3> -->
+                    {% endif %}
+                {% endfor %}
+                <h3>-------------------------------------</h3>
+                <h5> Total Price: ${{ pizza['TotalPrice'] }}</h5>
+                <br>
+            {% endfor %}
+            <h3>-------------------------------------</h3>
+
+            <!-- Calculate the grand total for all orders -->
+            <h3>Grand Total: ${{ Total }}</h3>
+
+            <!-- Display pizza-specific totals -->
+            <!-- <h3>Pizza Totals:</h3>
+            <ul>
+                {% for pizza, total in pizza_totals.items() %}
+                    <li>{{ pizza }}: ${{ total }}</li>
+                {% endfor %}
+            </ul> -->
+        </ul>
+    </body>
+</html>
+
+

@@ -1,0 +1,58 @@
+<html>
+    <head>
+        <title>TakeAwayOrInHouse</title>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Your Order:</h1>
+            <form action="/AwayVsHouse.html" method="post">
+
+                <!-- <h2>Your Basket:</h2> -->
+                <ul>
+                    {% for pizza in basket %}
+                        <li>{{ pizza['Amount'] }}x {{ pizza['Size'] }} {{ pizza['Pizza'] }} ${{ pizza['Price'] }}</li>
+                        {% if 'Comments' in pizza %}
+                        <h4>*Comments: {{ pizza['Comments'] }}</h4>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+
+                <h3>Total: ${{ Total }}</h3>
+
+
+                <h4>Choose whether you want to eat in the restaurant or take away:</h4>
+                <label for="Location">Select Location</label>
+                <select name="SelectLocation" id="dropdownmenu" >
+                    <option value="" disabled selected hidden>Choose a location</option>
+                    <option value = "Restaurant">In restaurant</option>
+                    <option value = "TakeAway">Take Away</option>
+                </select>
+
+                <label for="TableNumber">If you are eating in the pizzeria, please enter the table number:</label>
+                <input type ="number" name="TableNumber" id="comment" min="1" step="1" max="20" placeholder="Table Number...">
+
+
+                <button type="submit" name="Confirm" value="ToWaitRoom">Confirm order</button>
+                <!-- <a href="OrderWaitRoom.html" name = "Confirm" value = "ToWaitRoom"><button>Confirm order</button></a> -->
+                <!-- <a href="/TakeAway.html" name ="ToMenu" value ="BackToMenu"><button>Back to menu</button></a> -->
+
+
+
+                <a href="/TakeAway.html" name="ToMenu" value="BackToMenu">To Menu</a>
+                <!-- <button type="submit" name="ToMenu" value="BackToMenu">To Menu </button> -->
+
+
+                {% if error %}
+                <div id="messageBox">
+                    <p>{{ error }}</p>
+                </div>
+                {% endif %}
+    <!-- 
+                <a href="TakeAway.html"><button>Take Away</button></a>
+                <a href="InHouse.html"><button>Eat in the Pizzeria</button></a>
+                <a href="LogIn.html"><button>LogIn</button></a> -->
+
+        </div>
+    </body>
+</html>
+

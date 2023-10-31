@@ -1,40 +1,47 @@
 <html>
-    <head>
-        <title>Opening page</title>
-    </head>
-    <body>
-        <div class="container">
-            <h1>Take Away</h1>
+<head>
+    <title>Opening page</title>
+</head>
+<body>
+    <div class="container">
+        <h1>MENU</h1>
 
-            <form action ="/TakeAway.html" method = "post"> 
+        <!-- <form action="/TakeAway.html" method="post"> -->
+            <h2>Pizza Menu:</h2>
+            <ul>
+                {% for pizza, details in pizza_details.items() %}
+                    <li>
+                        <h1>***IMAGE***</h1>
+                        <!-- <a href = "Margherita.html"><button>{{ pizza }}</button></a> -->
+                        <a href="{{ url_for('Margherita', pizza_name=pizza) }}"><button>{{ pizza }}</button></a>
+                        <h5>Ingredients: {{ pizza_details[pizza]['Ingredients'] }}</h5>
+                        <!-- <ul>
+                            {% for size, price in details["Size"].items() %}
+                                <li>{{ size }}: {{ price }}</li>
+                            {% endfor %}
+                        </ul> -->
+                    </li>
+                {% endfor %}
+            </ul>
 
-                <label for = "Pizza Type"> Select a Pizza</label>
-                <select name = "SelectedPizza" id="dropdownmenu" aria-placeholder="Choose a pizza" required>
-                    <option value="" disabled selected hidden>Choose a pizza</option>
-                    {% for pizza in pizzas %}
-                    <option value = "{{ pizza }}">{{ pizza }}</option>
-                    {% endfor%}
-                </select>
 
-                <label for = "Size">Size</label>
-                <select name = "PizzaSize" id="dropdownmenu2" aria-placeholder="Choose a size" required>
-                    <option value="" disabled selected hidden>Choose a size</option>
-                    {% for size in sizes %}
-                    <option value = "{{ size }}">{{ size }}</option>
-                    {% endfor %}
-                </select>
+            <h2>Your Basket:</h2>
+            <ul>
+                {% for pizza in basket %}
+                    <li>{{ pizza['Amount'] }}x {{ pizza['Size'] }} {{ pizza['Pizza'] }} ${{ pizza['Price'] }}</li>
+                    {% if 'Comments' in pizza %}
+                    <h4>*Comments: {{ pizza['Comments'] }}</h4>
+                    {% endif %}
+                {% endfor %}
+            </ul>
 
-                <label for = "Additional Comments">Additional Comments</label>
-                <textarea name = "AdditionalComments" id = "comment" rows = "3" cols="20" placeholder="Comments..."></textarea>
+            <h3>Total: ${{ Total }}</h3>
 
-                <!-- {% if error %}
-                <div id="messageBox">
-                    <p>{{ error }}</p>
-                </div>
-                {% endif %} -->
+            <a href="AwayVsHouse.html"><button>Finish Order</button></a>
 
-                <a href="OrderWaitRoom.html"><button>Submit</button></a>
-            </form>
-        </div>
-    </body>
+
+            <!-- <a href="OrderWaitRoom.html"><button>Finish Order</button></a> -->
+        <!-- </form> -->
+    </div>
+</body>
 </html>

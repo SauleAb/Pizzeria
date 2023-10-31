@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ pizza_name }}</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Pizza {{ pizza_name }}</h1>
+        <form action="/Margherita.html/{{ pizza_name }}" method="post">
+            <h3>Ingredients: {{ pizza_info.Ingredients }}</h3>
+
+            <label for="Size">Select Size</label>
+            <select name="SelectedSize" id="dropdownmenu">
+                <option value="" disabled selected hidden>Choose a size</option>
+                {% for size, price in pizza_info.Size.items() %}
+                    <option value="{{ size }}">{{ size }} - {{ price }}</option>
+                {% endfor %}
+            </select>
+            <br>
+
+            <label for="Amount">Amount:</label>
+            <select name="Amount" id="dropdownmenu">
+                <option value="1" selected>1</option>
+                {% for amount in range(2, 10) %}
+                    <option value="{{ amount }}">{{ amount }}</option>
+                {% endfor %}
+            </select>
+            <br>
+
+            <label for="AdditionalComments">Additional Comments</label>
+            <textarea name="AdditionalComments" id="comment" rows="3" cols="20" placeholder="Comments..."></textarea>
+
+            {% if error %}
+                <div id="messageBox">
+                    <p>{{ error }}</p>
+                </div>
+            {% endif %}
+
+            <button type="submit" name="action" value="add">Add to Basket</button>
+        <!-- </form> -->
+
+        <a href="/TakeAway.html" name="ToMenu" value="BackToMenu">Back To Menu</a>
+    </div>
+</body>
+</html>
