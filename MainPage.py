@@ -3,7 +3,7 @@ import tkinter
 from tkinter import messagebox
 import random
 import time
-from datetime import datetime
+import datetime
 import math
 import copy
 
@@ -128,21 +128,30 @@ def index():
 @app.route('/TakeAway.html')
 def TakeAway():
     Total = sum(pizza['Price'] for pizza in basket)
-    return render_template('TakeAway.html', pizza_details = pizza_details, pizzas = pizzas, sizes = sizes, basket = basket, Total = Total)
+    return render_template('TakeAway.html', Total = Total, pizza_details = pizza_details, pizzas = pizzas, sizes = sizes, basket = basket)
 
-@app.route('/InHouse.html')
-def InHouse():
-    return render_template('InHouse.html', pizzas = pizzas, sizes = sizes)
+# @app.route('/InHouse.html')
+# def InHouse():
+#     return render_template('InHouse.html', pizzas = pizzas, sizes = sizes)
 
 @app.route('/LogIn.html')
 def LogIn():
-    return render_template('LogIn.html')
+    current_datetime = datetime.datetime.now()
+    time1 = current_datetime.time()
+    ftime = time1.strftime("%H:%M:%S")
+    return render_template('LogIn.html',ftime = ftime)
 
 @app.route('/StaffPage.html')
 def StaffPage():
     Total = sum(pizza['Price'] for pizza in orders)
-    pizza_totals = calculate_pizza_totals(orders)
-    start_index = (orders[pizza['TableNumber']:] for pizza in orders)
+    # current_datetime = datetime.datetime.now()
+    # time1 = current_datetime.time()
+    # ftime = time1.strftime("%H:%M:%S")
+
+    # pizza_totals = calculate_pizza_totals(orders)
+    # table_totals = calculate_table_totals(orders)
+    # start_index = (orders[pizza['TableNumber']:] for pizza in orders)
+    # AllMoney = 0
     # for pizza in orders:
     #     for pizza2 in orders:
     #         if pizza['TableNumber'] == pizza2['TableNumber']:
@@ -150,21 +159,31 @@ def StaffPage():
 
 
 
+    return render_template('StaffPage.html',basket = basket, orders = orders, Total = Total)
 
-    return render_template('StaffPage.html',pizza_totals = pizza_totals, start_index = start_index, orders = orders, basket = basket, Total = Total)
+    # return render_template('StaffPage.html',table_totals = table_totals, AllMoney = AllMoney, pizza_totals = pizza_totals, start_index = start_index, orders = orders, basket = basket, Total = Total)
 
+# def calculate_table_totals(orders):
+#     table_totals = {}
+#     for order in orders:
+#         table_number = order['TableNumber']
+#         total_price = order['TotalPrice']
+#         if table_number in table_totals:
+#             table_totals[table_number] += total_price
+#         else:
+#             table_totals[table_number] = total_price
+#     return table_totals
 
-
-def calculate_pizza_totals(orders):
-    pizza_totals = {}
-    for order in orders:
-        pizza_name = order['Pizza']
-        total_price = order['Amount'] * order['Price']
-        if pizza_name in pizza_totals:
-            pizza_totals[pizza_name] += total_price
-        else:
-            pizza_totals[pizza_name] = total_price
-    return pizza_totals
+# def calculate_pizza_totals(orders):
+#     pizza_totals = {}
+#     for order in orders:
+#         pizza_name = order['Pizza']
+#         total_price = order['Amount'] * order['Price']
+#         if pizza_name in pizza_totals:
+#             pizza_totals[pizza_name] += total_price
+#         else:
+#             pizza_totals[pizza_name] = total_price
+#     return pizza_totals
 
 
 @app.route('/AwayVsHouse.html',methods = ['GET', 'POST'])
@@ -188,6 +207,7 @@ def Location():
                         if tnum > 20 or tnum < 1:
                             error = "No such table"
                         else:
+                            # table_orders = []
                             for pizza in basket:
                                 order = {
                                     'TableNumber': tnum,
@@ -201,11 +221,13 @@ def Location():
                                     order['Comments'] = pizza['Comments']
 
 
-                            Total = sum(pizza['Price'] for pizza in basket)
-                            order['TotalPrice'] = (f'{Total}')
+                                Total = sum(pizza['Price'] for pizza in basket)
+                                order['TotalPrice'] = (f'{Total}')
 
-                                
-                            orders.append(order)
+                                orders.append(order)
+                            # table_orders.append(order)
+                            # orders.append(table_orders)
+                            # print(orders)
 
 
                             return render_template('OrderWaitRoom.html', tnum = tnum, basket = basket, Total = Total)
@@ -216,28 +238,23 @@ def Location():
                     tnum = random.randint(20,1000)
 
                     for pizza in basket:
-                        order = {
-                            'TableNumber': tnum,
-                            'Pizza': pizza['Pizza'],
-                            'Size': pizza['Size'],
-                            'Amount': pizza['Amount'],
-                            'Price': pizza['Price'],
-                            # 'TotalPrice': None
-                        }
-
-                        if 'Comments' in pizza:
-                            order['Comments'] = pizza['Comments']
+                                order = {
+                                    'TableNumber': tnum,
+                                    'Pizza': pizza['Pizza'],
+                                    'Size': pizza['Size'],
+                                    'Amount': pizza['Amount'],
+                                    'Price': pizza['Price'],
+                                    # 'TotalPrice': None
+                                }
+                                if 'Comments' in pizza:
+                                    order['Comments'] = pizza['Comments']
                         # orders.append(order)
 
+                                Total = sum(pizza['Price'] for pizza in basket)
+                                order['TotalPrice'] = (f'{Total}')
 
-
-
-
-
-                        Total = sum(pizza['Price'] for pizza in basket)
-                        order['TotalPrice'] = (f'{Total}')
-                        orders.append(order)
-
+                                orders.append(order)
+                                print(orders)
 
 
 
@@ -340,12 +357,23 @@ def ToStaffPage():
         error = "Incorrect data"
 
     if authenticated:
-        pizza_totals = calculate_pizza_totals(orders)
-        Total = sum(pizza['Price'] for pizza in orders)
-        start_index = (orders[pizza['TableNumber']:] for pizza in orders)
-        return render_template('StaffPage.html',pizza_totals = pizza_totals, start_index = start_index, Person = Person, basket = basket, orders = orders, Total = Total)
+        # pizza_totals = calculate_pizza_totals(orders)
+        # Total = sum(pizza['Price'] for pizza in orders)
+        # table_totals = calculate_table_totals(orders)
+
+        # start_index = (orders[pizza['TableNumber']:] for pizza in orders)
+        # AllMoney = 0
+        print(orders)
+        current_datetime = datetime.datetime.now()
+        time1 = current_datetime.time()
+        ftime = time1.strftime("%H:%M:%S")
+
+        return render_template('StaffPage.html',ftime = ftime, Person = Person, basket = basket, orders = orders)
     else:
-        return render_template('LogIn.html', error=error)
+        current_datetime = datetime.datetime.now()
+        time1 = current_datetime.time()
+        ftime = time1.strftime("%H:%M:%S")
+        return render_template('LogIn.html',ftime = ftime, error=error)
  
 
 if __name__ == '__main__':
@@ -360,3 +388,4 @@ if __name__ == '__main__':
 
 
 
+# it lets me in to the staff page when no username is entered
